@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>FTB-Skies-2-Aero</Name>
+  <Repository>ftb-skies-2-aero:latest</Repository>
+  <Registry/>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/JonaxScript/ftb-skies-2-aero-docker</Support>
+  <Project>https://www.feed-the-beast.com/modpacks/134-ftb-skies-2-aero</Project>
+  <Overview>Minecraft server for the FTB Skies 2: Aero modpack (Minecraft 1.21.1, NeoForge). On the first start the modpack is installed into the appdata folder automatically, which takes a few minutes.</Overview>
+  <Category>GameServers:</Category>
+  <WebUI/>
+  <TemplateURL/>
+  <Icon>https://cdn.feed-the-beast.com/blob/22/225f0af85acc4fa904d3ff5e4e136e1985b94968191548e52ee73073d634c6b1.webp</Icon>
+  <ExtraParams>--stop-timeout=120</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="EULA" Target="EULA" Default="false" Mode="" Description="Do you agree to the Mojang EULA available at https://account.mojang.com/documents/minecraft_eula? Server will not start without accepting. Set to 'true' to accept." Type="Variable" Display="always" Required="true" Mask="false">false</Config>
+  <Config Name="JVM_OPTS" Target="JVM_OPTS" Default="-Xms6G -Xmx8G" Mode="" Description="Java Options" Type="Variable" Display="always" Required="false" Mask="false">-Xms6G -Xmx8G</Config>
+  <Config Name="OPS" Target="OPS" Default="" Mode="" Description="Comma separated list of players to have op capability" Type="Variable" Display="always" Required="false" Mask="false"/>
+  <Config Name="MOTD" Target="MOTD" Default="FTB Skies 2: Aero" Mode="" Description="Set the server MOTD" Type="Variable" Display="always" Required="false" Mask="false">FTB Skies 2: Aero</Config>
+  <Config Name="Port" Target="25565" Default="25565" Mode="tcp" Description="Port for the server" Type="Port" Display="always" Required="true" Mask="false">25565</Config>
+  <Config Name="LEVEL" Target="LEVEL" Default="world" Mode="" Description="Name of the world directory. It is usually world." Type="Variable" Display="advanced" Required="false" Mask="false">world</Config>
+  <Config Name="Data" Target="/data" Default="/mnt/user/appdata/ftb-skies-2-aero" Mode="rw" Description="Server files, world and configs" Type="Path" Display="advanced" Required="true" Mask="false">/mnt/user/appdata/ftb-skies-2-aero</Config>
+  <Config Name="PUID" Target="PUID" Default="99" Mode="" Description="User ID that owns the server files" Type="Variable" Display="advanced" Required="false" Mask="false">99</Config>
+  <Config Name="PGID" Target="PGID" Default="100" Mode="" Description="Group ID that owns the server files" Type="Variable" Display="advanced" Required="false" Mask="false">100</Config>
+  <Config Name="FTB_VERSION_ID" Target="FTB_VERSION_ID" Default="100527" Mode="" Description="FTB modpack version ID (100527 = 1.13.0). Change it to update the modpack on the next start." Type="Variable" Display="advanced" Required="true" Mask="false">100527</Config>
+</Container>

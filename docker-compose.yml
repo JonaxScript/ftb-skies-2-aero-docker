@@ -1,0 +1,21 @@
+# For local testing (e.g. with Docker Desktop): docker compose up --build
+services:
+  ftb-skies-2-aero:
+    build: .
+    image: ftb-skies-2-aero:latest
+    container_name: ftb-skies-2-aero
+    ports:
+      - "25565:25565"
+    environment:
+      EULA: "false"            # set to "true" to accept the Minecraft EULA
+      JVM_OPTS: "-Xms6G -Xmx8G"
+      OPS: ""                  # e.g. "Player1,Player2"
+      MOTD: "FTB Skies 2: Aero"
+      LEVEL: "world"
+    volumes:
+      - ftb-data:/data
+    stop_grace_period: 2m      # time to save the world when stopping
+    restart: unless-stopped
+
+volumes:
+  ftb-data:
