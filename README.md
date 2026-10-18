@@ -12,27 +12,28 @@ is installed into `/data`; after that the server starts right away.
 |---|---|
 | `Dockerfile` | Image definition |
 | `entrypoint.sh` | Install/update, `server.properties`, EULA, ops, server start |
-| `unraid/ftb-skies-2-aero.xml` | Unraid template with all variables |
+| `templates/ftb-skies-2-aero.xml` | Unraid template with all variables |
+| `ca_profile.xml` | Repository profile for Unraid Community Apps |
 | `docker-compose.yml` | For local testing, e.g. with Docker Desktop |
 
 ## Install on Unraid
 
-1. **Add the template:** Open the terminal in the Unraid web UI (`>_` icon, top right) and run:
+1. **Get the template:** In the **Apps** tab (Community Apps), search for **FTB-Skies-2-Aero** and click
+   **Install**. If the app is not listed (yet), add the template in the Unraid terminal (`>_` icon, top right)
+   instead, then go to **Docker** → **Add Container** and pick **FTB-Skies-2-Aero** under **Template**:
 
    ```sh
-   curl -fsSL --create-dirs -o /boot/config/plugins/dockerMan/templates-user/my-FTB-Skies-2-Aero.xml https://raw.githubusercontent.com/JonaxScript/ftb-skies-2-aero-docker/main/unraid/ftb-skies-2-aero.xml
+   curl -fsSL --create-dirs -o /boot/config/plugins/dockerMan/templates-user/my-FTB-Skies-2-Aero.xml https://raw.githubusercontent.com/JonaxScript/ftb-skies-2-aero-docker/main/templates/ftb-skies-2-aero.xml
    ```
 
-2. **Create the container:** **Docker** → **Add Container** → under **Template**, pick **FTB-Skies-2-Aero**
-   from *User templates*.
-3. Set `EULA` to `true`, adjust `OPS`, `MOTD` and the RAM in `JVM_OPTS` → **Apply**. Unraid downloads the
+2. Set `EULA` to `true`, adjust `OPS`, `MOTD` and the RAM in `JVM_OPTS` → **Apply**. Unraid downloads the
    image from Docker Hub and starts the container.
-4. **Watch the start:** In the Docker tab, click the container icon → **Logs**. The first install takes a few
+3. **Watch the start:** In the Docker tab, click the container icon → **Logs**. The first install takes a few
    minutes, the first server start including world generation a few more. The server is ready when it logs
    `Done (...)! For help, type "help"`.
-5. **Connect:** In the FTB App (same pack version, currently 1.13.0), add the server `<unraid-ip>:25565`.
+4. **Connect:** In the FTB App (same pack version, currently 1.13.0), add the server `<unraid-ip>:25565`.
 
-### Without the terminal
+### Without a template
 
 You can also create the container by hand: **Docker** → **Add Container**, then
 
@@ -130,4 +131,9 @@ This pushes a plain single-platform Docker manifest without attestations, the sa
 - Server console: add `-it` to *Extra Parameters* to send commands via `docker attach FTB-Skies-2-Aero`
   (detach with `Ctrl+P`, `Ctrl+Q`). Alternatively, run commands in-game as an op.
 - x86-64 only (the Unraid default).
-- This project is not affiliated with Feed The Beast or Mojang.
+
+## License
+
+The files in this repository are licensed under the [MIT License](LICENSE). The modpack, Minecraft and the
+FTB server installer are downloaded at runtime and are subject to their own licenses and the Minecraft EULA.
+This project is not affiliated with Feed The Beast or Mojang.

@@ -1,0 +1,10 @@
+<CommunityApplications>
+  <Profile>
+Docker template for an FTB Skies 2: Aero modded Minecraft server (Minecraft 1.21.1, NeoForge). The container installs the modpack with the official FTB server installer on the first start and keeps the world and all server files in appdata.
+
+Documentation: https://github.com/JonaxScript/ftb-skies-2-aero-docker
+Questions and problems: https://github.com/JonaxScript/ftb-skies-2-aero-docker/issues
+  </Profile>
+  <Icon>https://avatars.githubusercontent.com/u/48924461?v=4</Icon>
+  <WebPage>https://github.com/JonaxScript/ftb-skies-2-aero-docker</WebPage>
+</CommunityApplications>

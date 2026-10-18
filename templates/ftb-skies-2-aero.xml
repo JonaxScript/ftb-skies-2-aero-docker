@@ -4,23 +4,18 @@
   <Repository>jonaxio/ftb-skies-2-aero:latest</Repository>
   <Registry>https://hub.docker.com/r/jonaxio/ftb-skies-2-aero</Registry>
   <Network>bridge</Network>
-  <MyIP/>
   <Shell>bash</Shell>
   <Privileged>false</Privileged>
-  <Support>https://github.com/JonaxScript/ftb-skies-2-aero-docker</Support>
-  <Project>https://www.feed-the-beast.com/modpacks/134-ftb-skies-2-aero</Project>
-  <Overview>Minecraft server for the FTB Skies 2: Aero modpack (Minecraft 1.21.1, NeoForge). On the first start the modpack is installed into the appdata folder automatically, which takes a few minutes.</Overview>
+  <Support>https://github.com/JonaxScript/ftb-skies-2-aero-docker/issues</Support>
+  <Project>https://github.com/JonaxScript/ftb-skies-2-aero-docker</Project>
+  <ReadMe>https://raw.githubusercontent.com/JonaxScript/ftb-skies-2-aero-docker/main/README.md</ReadMe>
+  <Overview>Dedicated server for the FTB Skies 2: Aero modpack (Minecraft 1.21.1, NeoForge, Java 21), a skyblock pack built around airships. On the first start the container installs the modpack into the appdata folder with the official FTB server installer (about 1.3 GB, takes a few minutes); after that the server starts right away. Set EULA to true to accept the Minecraft EULA. Ops, MOTD, world name and Java memory are set through the variables. To update the modpack, change FTB_VERSION_ID to the ID shown on the FTB versions page.</Overview>
   <Category>GameServers:</Category>
-  <WebUI/>
-  <TemplateURL/>
-  <Icon>https://cdn.feed-the-beast.com/blob/22/225f0af85acc4fa904d3ff5e4e136e1985b94968191548e52ee73073d634c6b1.webp</Icon>
+  <TemplateURL>https://raw.githubusercontent.com/JonaxScript/ftb-skies-2-aero-docker/main/templates/ftb-skies-2-aero.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/JonaxScript/ftb-skies-2-aero-docker/main/images/ftb-skies-2-aero.png</Icon>
   <ExtraParams>--stop-timeout=120</ExtraParams>
-  <PostArgs/>
-  <CPUset/>
-  <DateInstalled/>
-  <DonateText/>
-  <DonateLink/>
-  <Requires/>
+  <Requires>About 8 GB of free RAM for the server (JVM_OPTS default -Xms6G -Xmx8G). Players need the same modpack version in the FTB App.</Requires>
+  <ExtraSearchTerms>minecraft modpack ftb feed-the-beast skyblock neoforge airship aeronautics skies aero</ExtraSearchTerms>
   <Config Name="EULA" Target="EULA" Default="false" Mode="" Description="Do you agree to the Mojang EULA available at https://account.mojang.com/documents/minecraft_eula? Server will not start without accepting. Set to 'true' to accept." Type="Variable" Display="always" Required="true" Mask="false">false</Config>
   <Config Name="JVM_OPTS" Target="JVM_OPTS" Default="-Xms6G -Xmx8G" Mode="" Description="Java Options" Type="Variable" Display="always" Required="false" Mask="false">-Xms6G -Xmx8G</Config>
   <Config Name="OPS" Target="OPS" Default="" Mode="" Description="Comma separated list of players to have op capability" Type="Variable" Display="always" Required="false" Mask="false"/>
