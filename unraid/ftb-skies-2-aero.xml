@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <Container version="2">
   <Name>FTB-Skies-2-Aero</Name>
-  <Repository>ftb-skies-2-aero:latest</Repository>
-  <Registry/>
+  <Repository>jonaxio/ftb-skies-2-aero:latest</Repository>
+  <Registry>https://hub.docker.com/r/jonaxio/ftb-skies-2-aero</Registry>
   <Network>bridge</Network>
   <MyIP/>
   <Shell>bash</Shell>

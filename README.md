@@ -4,8 +4,9 @@ Docker image and Unraid template for a dedicated server running the
 [FTB Skies 2: Aero](https://www.feed-the-beast.com/modpacks/134-ftb-skies-2-aero) modpack
 (Minecraft 1.21.1, NeoForge 21.1.250, Java 21).
 
-The image contains Java 21 and the official FTB server installer. On the **first start** the
-modpack (about 1.3 GB) is installed into `/data`; after that the server starts right away.
+The image is on Docker Hub as [`jonaxio/ftb-skies-2-aero`](https://hub.docker.com/r/jonaxio/ftb-skies-2-aero).
+It contains Java 21 and the official FTB server installer. On the **first start** the modpack (about 1.3 GB)
+is installed into `/data`; after that the server starts right away.
 
 | File | Purpose |
 |---|---|
@@ -16,42 +17,44 @@ modpack (about 1.3 GB) is installed into `/data`; after that the server starts r
 
 ## Install on Unraid
 
-The image is built directly on your Unraid server, so no registry account is needed.
-
-1. **Build the image and add the template:** Open the terminal in the Unraid web UI (`>_` icon, top right) and run:
+1. **Add the template:** Open the terminal in the Unraid web UI (`>_` icon, top right) and run:
 
    ```sh
-   REPO=https://raw.githubusercontent.com/JonaxScript/ftb-skies-2-aero-docker/main
-   mkdir -p /tmp/ftb-skies-2-aero && cd /tmp/ftb-skies-2-aero
-   curl -fsSL -O "$REPO/Dockerfile" -O "$REPO/entrypoint.sh"
-   docker build -t ftb-skies-2-aero:latest .
-   curl -fsSL --create-dirs -o /boot/config/plugins/dockerMan/templates-user/my-FTB-Skies-2-Aero.xml "$REPO/unraid/ftb-skies-2-aero.xml"
+   curl -fsSL --create-dirs -o /boot/config/plugins/dockerMan/templates-user/my-FTB-Skies-2-Aero.xml https://raw.githubusercontent.com/JonaxScript/ftb-skies-2-aero-docker/main/unraid/ftb-skies-2-aero.xml
    ```
 
-   You can ignore a "legacy builder is deprecated" warning.
 2. **Create the container:** **Docker** → **Add Container** → under **Template**, pick **FTB-Skies-2-Aero**
    from *User templates*.
-3. Set `EULA` to `true`, adjust `OPS`, `MOTD` and the RAM in `JVM_OPTS` → **Apply**.
+3. Set `EULA` to `true`, adjust `OPS`, `MOTD` and the RAM in `JVM_OPTS` → **Apply**. Unraid downloads the
+   image from Docker Hub and starts the container.
 4. **Watch the start:** In the Docker tab, click the container icon → **Logs**. The first install takes a few
    minutes, the first server start including world generation a few more. The server is ready when it logs
    `Done (...)! For help, type "help"`.
 5. **Connect:** In the FTB App (same pack version, currently 1.13.0), add the server `<unraid-ip>:25565`.
 
-Because the image is built locally, the update column in the Docker tab shows "not available". That is expected:
-modpack updates are done via `FTB_VERSION_ID`, see [Modpack updates](#modpack-updates).
+### Without the terminal
 
-### Alternative: Docker Hub
+You can also create the container by hand: **Docker** → **Add Container**, then
 
-You can also build the image on another machine and push it to [Docker Hub](https://hub.docker.com):
+- **Name:** `FTB-Skies-2-Aero`, **Repository:** `jonaxio/ftb-skies-2-aero:latest`
+- **Extra Parameters** (advanced view): `--stop-timeout=120`
+- via **Add another Path, Port, Variable, Label or Device**:
+  - Port: container port `25565`, protocol TCP
+  - Path: container path `/data`, host path `/mnt/user/appdata/ftb-skies-2-aero`
+  - Variable `EULA` with the value `true`, plus any other [variables](#variables) you want to change
+
+### Image updates
+
+When a new image is published, the Docker tab shows **update ready** for the container; click it and confirm
+with **apply update**. The world and all server files are kept in the appdata folder, and your settings stay
+in the template. Modpack updates are separate, see [Modpack updates](#modpack-updates).
+
+## Other Docker hosts
 
 ```sh
-docker login
-docker build -t YOUR-DOCKERHUB-NAME/ftb-skies-2-aero:latest .
-docker push YOUR-DOCKERHUB-NAME/ftb-skies-2-aero:latest
+docker run -d --name ftb-skies-2-aero -p 25565:25565 -v ftb-data:/data \
+  -e EULA=true --stop-timeout 120 jonaxio/ftb-skies-2-aero:latest
 ```
-
-On Unraid, download only the template (the last command of step 1) and set **Repository** in the container
-settings to `YOUR-DOCKERHUB-NAME/ftb-skies-2-aero:latest`.
 
 ## Variables
 
@@ -81,7 +84,7 @@ Updates are not automatic; the version is pinned via `FTB_VERSION_ID`. To update
 4. All players update the pack to the same version in the FTB App.
 
 On start, the container detects the new ID (`/data/.ftb-installed-version`) and runs the FTB installer as an update.
-The image does not need to be rebuilt. Tested with an update from 1.10.0 to 1.13.0:
+No new image is needed for this. Tested with an update from 1.10.0 to 1.13.0:
 
 | Kept | Replaced or removed |
 |---|---|
@@ -95,21 +98,24 @@ works (the installer then downgrades), but the world has already been loaded by 
 
 To repair a broken installation, delete `.ftb-installed-version` and restart the container.
 
-### Updating the image
+## Building the image yourself
 
-Only needed when `Dockerfile` or `entrypoint.sh` change: run the first four commands of the installation again
-(not the last one for the template), then edit the container → **Apply** so it is recreated with the new image.
-Do not download the template again, because Unraid stores your settings in that very file.
+**Local testing:** Set `EULA` to `"true"` in `docker-compose.yml`, then run `docker compose up --build`.
+The server data is stored in the Docker volume `ftb-data`.
 
-## Local testing
+**Own build on Unraid:** Build with `docker build -t ftb-skies-2-aero:latest .` and set **Repository** in the
+container settings to `ftb-skies-2-aero:latest`. The update column then shows "not available", which is expected
+for local images.
 
-Set `EULA` to `"true"` in `docker-compose.yml`, then run:
+**Publishing to Docker Hub** (maintainers):
 
 ```sh
-docker compose up --build
+docker buildx build --platform linux/amd64 --provenance=false --sbom=false \
+  --output type=image,name=docker.io/jonaxio/ftb-skies-2-aero:latest,push=true,oci-mediatypes=false .
 ```
 
-The server data is stored in the Docker volume `ftb-data`.
+This pushes a plain single-platform Docker manifest without attestations, the same format a classic
+`docker push` creates.
 
 ## Notes
 
