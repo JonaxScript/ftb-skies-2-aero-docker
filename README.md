@@ -33,12 +33,42 @@ When a new image is published, the Docker tab shows **update ready** for the con
 with **apply update**. The world and all server files are kept in the appdata folder, and your settings stay
 in the template. Modpack updates are separate, see [Modpack updates](#modpack-updates).
 
-## Other Docker hosts
+## Install with Docker (without Unraid)
+
+Setting `EULA=true` means you accept the [Minecraft EULA](https://account.mojang.com/documents/minecraft_eula).
 
 ```sh
-docker run -d --name ftb-skies-2-aero -p 25565:25565 -v ftb-data:/data \
-  -e EULA=true --stop-timeout 120 jonaxio/ftb-skies-2-aero:latest
+docker run -d --name ftb-skies-2-aero --restart unless-stopped --stop-timeout 120 \
+  -p 25565:25565 -v ftb-data:/data -e EULA=true jonaxio/ftb-skies-2-aero:latest
 ```
+
+Or with Docker Compose (save as `compose.yaml`, then run `docker compose up -d`):
+
+```yaml
+services:
+  ftb-skies-2-aero:
+    image: jonaxio/ftb-skies-2-aero:latest
+    container_name: ftb-skies-2-aero
+    ports:
+      - "25565:25565"
+    environment:
+      EULA: "true"
+      JVM_OPTS: "-Xms6G -Xmx8G"
+    volumes:
+      - ftb-data:/data
+    stop_grace_period: 2m
+    restart: unless-stopped
+
+volumes:
+  ftb-data:
+```
+
+- Follow the start with `docker logs -f ftb-skies-2-aero`.
+- All [variables](#variables) can be set with `-e` or under `environment`.
+- With a bind mount (e.g. `./data:/data`) instead of a volume, set `PUID` and `PGID` to your own user
+  (`id -u`, `id -g`) so the files belong to you.
+- Image updates: `docker compose pull && docker compose up -d`. With `docker run`, pull the image, remove the
+  container and run the command again; the data stays in the volume.
 
 ## Variables
 
