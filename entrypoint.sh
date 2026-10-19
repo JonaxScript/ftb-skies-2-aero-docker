@@ -7,7 +7,7 @@ set -euo pipefail
 DATA_DIR=/data
 VERSION_MARKER="$DATA_DIR/.ftb-installed-version"
 
-log() { echo "[entrypoint] $*"; }
+log() { echo "[entrypoint] $*" >&2; }
 
 # Started as root: hand /data over to the Unraid user (default nobody:users = 99:100)
 # and restart the script without root privileges.
@@ -24,14 +24,52 @@ if [[ "${EULA,,}" != "true" ]]; then
   exit 1
 fi
 
-# --- Install the modpack or update it to FTB_VERSION_ID -----------------------
+# --- Install the modpack or change its version --------------------------------
+# Empty FTB_VERSION_ID: install the newest release on the first start and keep it
+# afterwards. Otherwise FTB_VERSION_ID is a version ID (e.g. 100527) or a version
+# (e.g. 1.13.0) that is installed when it differs from the installed one.
+
+# Prints "<id> <name>" of the requested version, or of the newest release if $1 is empty
+resolve_version() {
+  local wanted="$1" json
+  if ! json="$(curl -fsS --max-time 30 "https://api.feed-the-beast.com/v1/modpacks/public/modpack/$FTB_PACK_ID")"; then
+    log "WARNING: The FTB API could not be reached."
+    return 1
+  fi
+  if ! jq -er --arg w "$wanted" '
+      (if $w == "" then [.versions[] | select(.type == "release")] | max_by(.id)
+       else first(.versions[] | select((.id | tostring) == $w or .name == $w)) end)
+      | select(. != null) | "\(.id) \(.name)"' <<< "$json"; then
+    log "WARNING: Modpack version '$wanted' does not exist, see https://www.feed-the-beast.com/modpacks/134-ftb-skies-2-aero/versions"
+    return 1
+  fi
+}
+
 installed_version="$(cat "$VERSION_MARKER" 2>/dev/null || true)"
-if [[ "$installed_version" != "$FTB_VERSION_ID" ]]; then
-  log "Installing FTB Skies 2: Aero (pack $FTB_PACK_ID, version $FTB_VERSION_ID, previously: ${installed_version:-none}) ..."
-  ftb-serverinstall -pack "$FTB_PACK_ID" -version "$FTB_VERSION_ID" -dir "$DATA_DIR" \
-    -auto -force -no-java -no-colours
-  echo "$FTB_VERSION_ID" > "$VERSION_MARKER"
-  log "Installation complete."
+requested_version="${FTB_VERSION_ID:-}"
+requested_version="${requested_version//[[:space:]]/}"
+
+if [[ -n "$installed_version" && -z "$requested_version" ]]; then
+  log "Modpack version ID $installed_version is installed. Set FTB_VERSION_ID to change it."
+elif [[ -n "$installed_version" && "$requested_version" == "$installed_version" ]]; then
+  log "Modpack version ID $installed_version is installed."
+elif target="$(resolve_version "$requested_version")"; then
+  target_id="${target%% *}"
+  target_name="${target#* }"
+  if [[ "$target_id" == "$installed_version" ]]; then
+    log "Modpack $target_name (version ID $target_id) is installed."
+  else
+    log "Installing FTB Skies 2: Aero $target_name (version ID $target_id, previously: ${installed_version:-none}) ..."
+    ftb-serverinstall -pack "$FTB_PACK_ID" -version "$target_id" -dir "$DATA_DIR" \
+      -auto -force -no-java -no-colours
+    echo "$target_id" > "$VERSION_MARKER"
+    log "Installation complete."
+  fi
+elif [[ -n "$installed_version" ]]; then
+  log "Keeping the installed modpack version ID $installed_version."
+else
+  log "ERROR: The modpack cannot be installed without a valid version."
+  exit 1
 fi
 
 # --- server.properties ----------------------------------------------------------

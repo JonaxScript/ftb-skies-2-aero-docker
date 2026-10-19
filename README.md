@@ -2,12 +2,12 @@
 
 Docker image and Unraid template for a dedicated server running the
 [FTB Skies 2: Aero](https://www.feed-the-beast.com/modpacks/134-ftb-skies-2-aero) modpack
-(Minecraft 1.21.1, NeoForge 21.1.250, Java 21).
+(Minecraft 1.21.1, NeoForge, Java 21).
 
 On Unraid, install it from the **Apps** tab (Community Apps) as **FTB-Skies-2-Aero**. The image is on Docker Hub
 as [`jonaxio/ftb-skies-2-aero`](https://hub.docker.com/r/jonaxio/ftb-skies-2-aero) and contains Java 21 and the
-official FTB server installer. On the **first start** the modpack (about 1.3 GB) is installed into `/data`;
-after that the server starts right away.
+official FTB server installer. On the **first start** the newest version of the modpack (about 1.3 GB) is
+installed into `/data`; after that the server starts right away.
 
 | File | Purpose |
 |---|---|
@@ -25,7 +25,8 @@ after that the server starts right away.
 3. **Watch the start:** In the Docker tab, click the container icon → **Logs**. The first install takes a few
    minutes, the first server start including world generation a few more. The server is ready when it logs
    `Done (...)! For help, type "help"`.
-4. **Connect:** In the FTB App (same pack version, currently 1.13.0), add the server `<unraid-ip>:25565`.
+4. **Connect:** In the FTB App (same pack version as the server, shown in the logs), add the server
+   `<unraid-ip>:25565`.
 
 ### Image updates
 
@@ -81,24 +82,27 @@ volumes:
 | `LEVEL` | `world` | Name of the world directory |
 | Port `25565/tcp` | `25565` | Game port; the host port can be anything in Unraid |
 | `PUID` / `PGID` | `99` / `100` | Owner of the files in `/data` (Unraid default `nobody:users`) |
-| `FTB_VERSION_ID` | `100527` (1.13.0) | Modpack version, see [Modpack updates](#modpack-updates) |
+| `FTB_VERSION_ID` | empty | Modpack version (e.g. `1.13.0`) or version ID (e.g. `100527`). Empty: the newest version is installed on the first start and kept afterwards. See [Modpack updates](#modpack-updates). |
 
 Path: `/data` → `/mnt/user/appdata/ftb-skies-2-aero` (world, configs, mods, logs).
 In Unraid, `LEVEL`, the path, `PUID`/`PGID` and `FTB_VERSION_ID` are under *Show more settings*.
 
 ## Modpack updates
 
-Updates are not automatic; the version is pinned via `FTB_VERSION_ID`. To update:
+On the first start the newest modpack version is installed. After that, the installed version is kept until
+you enter another one in `FTB_VERSION_ID`. To update:
 
-1. Find the new version ID: the [FTB versions page](https://www.feed-the-beast.com/modpacks/134-ftb-skies-2-aero/versions)
-   lists it for every version, e.g. "1.13.0 Release ID 100527".
+1. Look up the new version on the [FTB versions page](https://www.feed-the-beast.com/modpacks/134-ftb-skies-2-aero/versions),
+   e.g. "1.13.0 Release ID 100527". `FTB_VERSION_ID` accepts the version (`1.13.0`) or the ID (`100527`).
 2. Stop the container and back up the appdata folder, at least the world folder
    (e.g. with the *Appdata Backup* plugin from Community Apps).
-3. In Unraid, edit the container → *Show more settings* → change `FTB_VERSION_ID` → **Apply**.
+3. In Unraid, edit the container → *Show more settings* → enter the version in `FTB_VERSION_ID` → **Apply**.
 4. All players update the pack to the same version in the FTB App.
 
-On start, the container detects the new ID (`/data/.ftb-installed-version`) and runs the FTB installer as an update.
-No new image is needed for this. Tested with an update from 1.10.0 to 1.13.0:
+On start, the container compares the entered version with the installed one (`/data/.ftb-installed-version`)
+and runs the FTB installer as an update if they differ. No new image is needed for this. If the version does not
+exist or the FTB API cannot be reached, the installed version keeps running. Tested with an update from 1.10.0
+to 1.13.0:
 
 | Kept | Replaced or removed |
 |---|---|
@@ -107,8 +111,8 @@ No new image is needed for this. Tested with an update from 1.10.0 to 1.13.0:
 | Configs the pack did not change, including your edits | |
 | Mods and config files you added yourself | |
 
-**Rolling back:** Restore the backup and set `FTB_VERSION_ID` back to the old ID. Only resetting the ID also
-works (the installer then downgrades), but the world has already been loaded by the newer version.
+**Rolling back:** Restore the backup and enter the old version in `FTB_VERSION_ID`. Only entering the old version
+also works (the installer then downgrades), but the world has already been loaded by the newer version.
 
 To repair a broken installation, delete `.ftb-installed-version` and restart the container.
 
